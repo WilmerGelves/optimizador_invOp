@@ -1,37 +1,59 @@
 import { useEffect, useRef, useState } from "react";
 
 // Cada método es un objeto: para agregar uno nuevo basta añadirlo aquí (y su endpoint en el backend).
+// guide: pasos para ingresar el ejercicio · hint: ayuda breve asociada a cada campo.
 const METHODS = [
   {
-    id: "assignment", label: "Problema de asignación", endpoint: "/api/assignment",
+    id: "assignment", label: "Método de asignación", endpoint: "/api/assignment",
     theory: "Dado un conjunto de n agentes y n tareas, y una matriz de costos (o beneficios) c[i][j], se busca asignar cada agente a exactamente una tarea (y viceversa) de modo que el costo total sea mínimo (o el beneficio máximo). Es un caso particular del problema de transporte y de flujo a costo mínimo, con matriz de 0-1 como variables de decisión.",
+    guide: [
+      "Escribe la matriz de costos con una fila por línea: cada fila es un agente y cada columna una tarea.",
+      "Separa los números con espacios o comas; todas las filas deben tener la misma cantidad de columnas. Ejemplo: «9 2 7 8».",
+      "Elige el objetivo con el que se evalúa la matriz: Minimizar (costos) o Maximizar (beneficios).",
+    ],
     fields: [
-      { name: "matrix", label: "Matriz de costos (una fila por línea)", type: "textarea", value: "9 2 7 8\n6 4 3 7\n5 8 1 8\n7 6 9 4" },
-      { name: "mode", label: "Objetivo", type: "select", options: ["Minimizar", "Maximizar"], value: "Minimizar" },
+      { name: "matrix", label: "Matriz de costos (una fila por línea)", type: "textarea", hint: "Una fila por línea · filas = agentes, columnas = tareas.", value: "9 2 7 8\n6 4 3 7\n5 8 1 8\n7 6 9 4" },
+      { name: "mode", label: "Objetivo", type: "select", hint: "Minimizar costos o maximizar beneficios.", options: ["Minimizar", "Maximizar"], value: "Minimizar" },
     ],
   },
   {
     id: "km", label: "Método Kuhn-Munkres", endpoint: "/api/kuhn-munkres",
     theory: "También llamado método húngaro. Resuelve el problema de asignación en O(n³) usando dualidad: mantiene potenciales u (filas) y v (columnas) tales que u[i]+v[j] ≤ c[i][j]. Busca un emparejamiento perfecto en el subgrafo de aristas 'ajustadas' (u[i]+v[j]=c[i][j]); si no existe, ajusta los potenciales con el menor holgura (delta) y repite. Al terminar, el costo óptimo es Σu + Σv. Si la matriz no es cuadrada, se rellena con ceros.",
+    guide: [
+      "Escribe la matriz de costos con una fila por línea, igual que en el problema de asignación.",
+      "Separa los números con espacios o comas; se admiten enteros y decimales.",
+      "Si la matriz no es cuadrada, el método la completa con ceros: esas asignaciones ficticias no cuentan en el total.",
+    ],
     fields: [
-      { name: "matrix", label: "Matriz de costos (una fila por línea)", type: "textarea", value: "9 2 7 8\n6 4 3 7\n5 8 1 8\n7 6 9 4" },
+      { name: "matrix", label: "Matriz de costos (una fila por línea)", type: "textarea", hint: "Una fila por línea · filas = agentes, columnas = tareas.", value: "9 2 7 8\n6 4 3 7\n5 8 1 8\n7 6 9 4" },
     ],
   },
   {
-    id: "maxflow", label: "Flujo máximo", endpoint: "/api/max-flow",
+    id: "maxflow", label: "Método de flujo máximo", endpoint: "/api/max-flow",
     theory: "En una red dirigida con capacidades en los arcos, una fuente s y un sumidero t, se busca la mayor cantidad de flujo que puede enviarse de s a t respetando capacidades y la conservación del flujo en los nodos intermedios. Por el teorema del flujo máximo – corte mínimo, su valor iguala la capacidad del corte s-t de menor capacidad. Se resuelve con Ford-Fulkerson, Edmonds-Karp o Dinic.",
+    guide: [
+      "Escribe un arco por línea con el formato «origen destino capacidad», por ejemplo «s a 10».",
+      "Los nodos se crean al nombrarlos en los arcos; sus nombres no deben contener espacios ni comas.",
+      "Indica la fuente y el sumidero escribiéndolos igual que en los arcos (se distinguen mayúsculas de minúsculas).",
+      "La capacidad de cada arco debe ser un número mayor que cero.",
+    ],
     fields: [
-      { name: "edges", label: "Arcos: origen destino capacidad", type: "textarea", value: "s a 10\ns b 5\na b 15\na t 10\nb t 10" },
-      { name: "source", label: "Nodo fuente", type: "text", value: "s" },
-      { name: "sink", label: "Nodo sumidero", type: "text", value: "t" },
+      { name: "edges", label: "Arcos: origen destino capacidad", type: "textarea", hint: "Un arco por línea · formato: origen destino capacidad.", value: "s a 10\ns b 5\na b 15\na t 10\nb t 10" },
+      { name: "source", label: "Nodo fuente", type: "text", hint: "Nombre exacto del nodo fuente tal como aparece en los arcos.", value: "s" },
+      { name: "sink", label: "Nodo sumidero", type: "text", hint: "Nombre exacto del nodo sumidero tal como aparece en los arcos.", value: "t" },
     ],
   },
   {
-    id: "mincost", label: "Flujo a costo mínimo", endpoint: "/api/min-cost-flow",
+    id: "mincost", label: "Método de flujo a costo mínimo", endpoint: "/api/min-cost-flow",
     theory: "En una red con capacidades, costos unitarios por arco y nodos con oferta (positiva) o demanda (negativa), se busca el flujo factible que satisfaga todas las ofertas y demandas con costo total mínimo. Generaliza asignación, transporte, transbordo, camino más corto y flujo máximo. Se resuelve con el simplex para redes o con algoritmos de cancelación de ciclos / caminos de aumento sucesivos.",
+    guide: [
+      "Escribe un arco por línea con el formato «origen destino capacidad costo», por ejemplo «A C 10 2» (capacidad y costo numéricos).",
+      "En oferta/demanda anota un nodo por línea con su valor: positivo = oferta, negativo = demanda; los nodos que no aparezcan valen 0.",
+      "Cada nodo debe figurar en algún arco y la oferta total debe igualar a la demanda total, es decir, los valores suman 0 (en el ejemplo: 8 + 6 − 5 − 9 = 0).",
+    ],
     fields: [
-      { name: "edges", label: "Arcos: origen destino capacidad costo", type: "textarea", value: "A C 10 2\nA D 10 4\nB C 10 3\nB D 10 1\nC D 5 1" },
-      { name: "supplies", label: "Oferta(+)/Demanda(−): nodo valor (el resto vale 0)", type: "textarea", value: "A 8\nB 6\nC -5\nD -9" },
+      { name: "edges", label: "Arcos: origen destino capacidad costo", type: "textarea", hint: "Un arco por línea · formato: origen destino capacidad costo.", value: "A C 10 2\nA D 10 4\nB C 10 3\nB D 10 1\nC D 5 1" },
+      { name: "supplies", label: "Oferta(+)/Demanda(−): nodo valor (el resto vale 0)", type: "textarea", hint: "Un nodo por línea · formato: nodo valor.", value: "A 8\nB 6\nC -5\nD -9" },
     ],
   },
 ];
@@ -71,15 +93,24 @@ export default function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const resultRef = useRef(null);
+  const errorRef = useRef(null);
 
   const select = (m) => { setActive(m); setResult(null); setError(""); };
   const setField = (name, value) => setForms({ ...forms, [active.id]: { ...forms[active.id], [name]: value } });
 
+  const scrollBehavior = () => (window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+
   useEffect(() => {
     if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      resultRef.current.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
     }
   }, [result]);
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
+    }
+  }, [error]);
 
   async function solve() {
     setLoading(true); setError(""); setResult(null);
@@ -94,10 +125,11 @@ export default function App() {
 
   return (
     <div className="page">
+      <a className="skip-link" href="#contenido">Saltar al contenido</a>
       <header className="masthead">
         <div className="masthead-text">
-          <h1 className="title">Optimizador de redes</h1>
-          <p className="tagline">Escribe el problema como texto, elige el método y obtén la solución numérica con su grafo.</p>
+          <h1 className="title">Aplicación de métodos de optimización</h1>
+          <p className="tagline">Elige un método y sigue el paso a paso que describe cómo ingresar el ejercicio para obtener su solución.</p>
         </div>
         <NetMark />
       </header>
@@ -121,46 +153,63 @@ export default function App() {
           </ul>
         </nav>
 
-        <main className="panel">
+        <main className="panel" id="contenido" tabIndex={-1}>
           <section className="workbench">
             <h2 className="method-title">{active.label}</h2>
             <p className="theory">{active.theory}</p>
 
-            <form className="form" onSubmit={(e) => { e.preventDefault(); if (!loading) solve(); }}>
-              {active.fields.map(f => (
-                <div className="field" key={f.name}>
-                  <label className="field-label" htmlFor={`${active.id}-${f.name}`}>{f.label}</label>
-                  {f.type === "textarea" && (
-                    <textarea
-                      id={`${active.id}-${f.name}`}
-                      className="field-input"
-                      rows={6}
-                      spellCheck="false"
-                      value={forms[active.id][f.name]}
-                      onChange={e => setField(f.name, e.target.value)}
-                    />
-                  )}
-                  {f.type === "text" && (
-                    <input
-                      id={`${active.id}-${f.name}`}
-                      className="field-input field-input--text"
-                      spellCheck="false"
-                      value={forms[active.id][f.name]}
-                      onChange={e => setField(f.name, e.target.value)}
-                    />
-                  )}
-                  {f.type === "select" && (
-                    <select
-                      id={`${active.id}-${f.name}`}
-                      className="field-select"
-                      value={forms[active.id][f.name]}
-                      onChange={e => setField(f.name, e.target.value)}
-                    >
-                      {f.options.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  )}
-                </div>
-              ))}
+            <div className="guide">
+              <h3 className="guide-title">Cómo ingresar el ejercicio</h3>
+              <ol className="guide-list">
+                {active.guide.map((step, i) => <li key={i}>{step}</li>)}
+              </ol>
+            </div>
+
+            <form className="form" aria-busy={loading} onSubmit={(e) => { e.preventDefault(); if (!loading) solve(); }}>
+              {active.fields.map(f => {
+                const id = `${active.id}-${f.name}`;
+                const hintId = `${id}-hint`;
+                return (
+                  <div className="field" key={f.name}>
+                    <label className="field-label" htmlFor={id}>{f.label}</label>
+                    {f.type === "textarea" && (
+                      <textarea
+                        id={id}
+                        className="field-input"
+                        rows={6}
+                        spellCheck="false"
+                        autoComplete="off"
+                        aria-describedby={hintId}
+                        value={forms[active.id][f.name]}
+                        onChange={e => setField(f.name, e.target.value)}
+                      />
+                    )}
+                    {f.type === "text" && (
+                      <input
+                        id={id}
+                        className="field-input field-input--text"
+                        spellCheck="false"
+                        autoComplete="off"
+                        aria-describedby={hintId}
+                        value={forms[active.id][f.name]}
+                        onChange={e => setField(f.name, e.target.value)}
+                      />
+                    )}
+                    {f.type === "select" && (
+                      <select
+                        id={id}
+                        className="field-select"
+                        aria-describedby={hintId}
+                        value={forms[active.id][f.name]}
+                        onChange={e => setField(f.name, e.target.value)}
+                      >
+                        {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    )}
+                    <p className="field-hint" id={hintId}>{f.hint}</p>
+                  </div>
+                );
+              })}
               <button className="solve" type="submit" disabled={loading}>
                 {loading ? "Calculando…" : "Resolver"}
               </button>
@@ -168,22 +217,25 @@ export default function App() {
           </section>
 
           {error && (
-            <div className="message" role="alert">
+            <div className="message" role="alert" ref={errorRef}>
               <p>{error}</p>
             </div>
           )}
 
-          {result && (
-            <section className="result" ref={resultRef} aria-live="polite">
-              <h3 className="result-summary">{result.summary}</h3>
-              <pre className="result-details">{result.details.join("\n")}</pre>
-              {result.image && (
-                <figure className="plot">
-                  <img src={`data:image/png;base64,${result.image}`} alt="Grafo de la solución" />
-                </figure>
-              )}
-            </section>
-          )}
+          <div className="result-slot" role="status">
+            {result && (
+              <section className="result" ref={resultRef} aria-labelledby="result-title">
+                <h3 className="result-summary" id="result-title">{result.summary}</h3>
+                <pre className="result-details">{result.details.join("\n")}</pre>
+                {result.image && (
+                  <figure className="plot">
+                    <img src={`data:image/png;base64,${result.image}`} alt={`Grafo de la red de la solución: ${result.summary}`} />
+                    <figcaption>Cada arco indica el flujo obtenido sobre su capacidad y, cuando aplica, el costo unitario.</figcaption>
+                  </figure>
+                )}
+              </section>
+            )}
+          </div>
         </main>
       </div>
     </div>

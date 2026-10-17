@@ -43,6 +43,36 @@ body {
   padding: 0 24px 72px;
 }
 
+/* ---------- Enlaces de salto ---------- */
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  transform: translateY(-200%);
+  background: var(--teal-deep);
+  color: var(--paper-raised);
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: transform 120ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.skip-link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.panel:focus {
+  outline: none;
+}
+
 /* ---------- Cabecera ---------- */
 
 .masthead {
@@ -215,6 +245,33 @@ body {
   max-width: 62ch;
 }
 
+.guide {
+  margin: 0 0 22px;
+  padding: 14px 18px 16px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--radius);
+}
+
+.guide-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: 62ch;
+}
+
 .form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
@@ -270,6 +327,13 @@ body {
   border-radius: var(--radius);
   padding: 9px 10px;
   cursor: pointer;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
 }
 
 .solve {
@@ -348,7 +412,8 @@ body {
   }
 
   .method,
-  .solve {
+  .solve,
+  .skip-link {
     transition: none;
   }
 }
@@ -389,4 +454,11 @@ body {
   border: 1px solid var(--hairline-dark);
   border-radius: var(--radius);
   background: #ffffff;
+}
+
+.plot figcaption {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
