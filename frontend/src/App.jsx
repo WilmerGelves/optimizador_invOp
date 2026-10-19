@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 const METHODS = [
   {
     id: "assignment", label: "Método de asignación", endpoint: "/api/assignment",
-    theory: "Dado un conjunto de n agentes y n tareas, y una matriz de costos (o beneficios) c[i][j], se busca asignar cada agente a exactamente una tarea (y viceversa) de modo que el costo total sea mínimo (o el beneficio máximo). Es un caso particular del problema de transporte y de flujo a costo mínimo, con matriz de 0-1 como variables de decisión.",
+    theory: "Imagina que tienes varias personas y varias tareas, y sabes cuánto costaría (o cuánto ganaría) cada persona al realizar cada tarea. Este método te ayuda a decidir quién se encarga de qué, de modo que cada persona quede asignada a una sola tarea y el resultado global sea lo mejor posible: el costo más bajo o el beneficio más alto. Sirve para aprovechar bien los recursos y evitar combinaciones desfavorables.",
     guide: [
       "Escribe la matriz de costos con una fila por línea: cada fila es un agente y cada columna una tarea.",
       "Separa los números con espacios o comas; todas las filas deben tener la misma cantidad de columnas. Ejemplo: «9 2 7 8».",
@@ -18,7 +18,7 @@ const METHODS = [
   },
   {
     id: "km", label: "Método Kuhn-Munkres", endpoint: "/api/kuhn-munkres",
-    theory: "También llamado método húngaro. Resuelve el problema de asignación en O(n³) usando dualidad: mantiene potenciales u (filas) y v (columnas) tales que u[i]+v[j] ≤ c[i][j]. Busca un emparejamiento perfecto en el subgrafo de aristas 'ajustadas' (u[i]+v[j]=c[i][j]); si no existe, ajusta los potenciales con el menor holgura (delta) y repite. Al terminar, el costo óptimo es Σu + Σv. Si la matriz no es cuadrada, se rellena con ceros.",
+    theory: "Es una forma muy eficiente de resolver el mismo problema de asignación: encontrar la mejor combinación entre personas y tareas cuando hay muchas opciones para elegir. Aunque la tabla de costos sea grande, este método encuentra rápidamente la opción óptima. También funciona cuando hay más tareas que personas (o al revés), completando los espacios sobrantes sin afectar el resultado final.",
     guide: [
       "Escribe la matriz de costos con una fila por línea, igual que en el problema de asignación.",
       "Separa los números con espacios o comas; se admiten enteros y decimales.",
@@ -30,7 +30,7 @@ const METHODS = [
   },
   {
     id: "maxflow", label: "Método de flujo máximo", endpoint: "/api/max-flow",
-    theory: "En una red dirigida con capacidades en los arcos, una fuente s y un sumidero t, se busca la mayor cantidad de flujo que puede enviarse de s a t respetando capacidades y la conservación del flujo en los nodos intermedios. Por el teorema del flujo máximo – corte mínimo, su valor iguala la capacidad del corte s-t de menor capacidad. Se resuelve con Ford-Fulkerson, Edmonds-Karp o Dinic.",
+    theory: "Piensa en una red de caminos o tuberías que conectan un punto de origen con un destino final. Cada tramo tiene una capacidad máxima de lo que puede transportar. Este método calcula cuánta cantidad (productos, agua, mensajes, etc.) se puede enviar del origen al destino sin jamás exceder esas capacidades. Es útil para planificar transporte, logística o redes de comunicación y saber el máximo que se puede mover por la red.",
     guide: [
       "Escribe un arco por línea con el formato «origen destino capacidad», por ejemplo «s a 10».",
       "Los nodos se crean al nombrarlos en los arcos; sus nombres no deben contener espacios ni comas.",
@@ -45,7 +45,7 @@ const METHODS = [
   },
   {
     id: "mincost", label: "Método de flujo a costo mínimo", endpoint: "/api/min-cost-flow",
-    theory: "En una red con capacidades, costos unitarios por arco y nodos con oferta (positiva) o demanda (negativa), se busca el flujo factible que satisfaga todas las ofertas y demandas con costo total mínimo. Generaliza asignación, transporte, transbordo, camino más corto y flujo máximo. Se resuelve con el simplex para redes o con algoritmos de cancelación de ciclos / caminos de aumento sucesivos.",
+    theory: "Este método resuelve un problema de transporte: mover productos desde puntos que tienen mercancía disponible (oferta) hacia puntos que la necesitan (demanda). Cada ruta tiene un límite de cuánto se puede transportar por ella y un costo por cada unidad enviada. El objetivo es satisfacer todas las necesidades al costo total más bajo posible, eligiendo sabiamente por dónde enviar cada producto.",
     guide: [
       "Escribe un arco por línea con el formato «origen destino capacidad costo», por ejemplo «A C 10 2» (capacidad y costo numéricos).",
       "En oferta/demanda anota un nodo por línea con su valor: positivo = oferta, negativo = demanda; los nodos que no aparezcan valen 0.",
@@ -116,7 +116,9 @@ export default function App() {
     setLoading(true); setError(""); setResult(null);
     try {
       const res = await fetch(active.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: forms[active.id] }) });
-      const data = await res.json();
+      const text = await res.text();
+      let data = {};
+      try { data = JSON.parse(text); } catch { /* respuesta no-JSON (p. ej. 500 en texto plano) */ }
       if (!res.ok) throw new Error(data.detail || "Error en el servidor");
       setResult(data);
     } catch (e) { setError(e.message); }

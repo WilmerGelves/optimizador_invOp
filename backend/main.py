@@ -115,15 +115,22 @@ def km(r: Req):
 
 @app.post("/api/max-flow")
 def max_flow(r: Req):
-    edges = parse_edges(r.fields["edges"], 3)
-    s, t = r.fields["source"].strip(), r.fields["sink"].strip()
+    edges = parse_edges((r.fields.get("edges") or ""), 3)
+    s = (r.fields.get("source") or "").strip()
+    t = (r.fields.get("sink") or "").strip()
+    if not s or not t:
+        raise HTTPException(400, "Indica el nodo fuente y el nodo sumidero.")
+    if s == t:
+        raise HTTPException(400, "La fuente y el sumidero deben ser distintos.")
     G = nx.DiGraph()
     for u, v, c in [e[:3] for e in edges]:
+        if c <= 0:
+            raise HTTPException(400, f"La capacidad de cada arco debe ser un número mayor que cero (arco '{u} {v} {c}').")
         G.add_edge(u, v, capacity=c)
     if s not in G or t not in G:
         raise HTTPException(400, "Fuente o sumidero no existen en la red.")
     val, flow = nx.maximum_flow(G, s, t)
-    cut_s, _ = nx.minimum_cut(G, s, t)
+    _, (cut_s, _) = nx.minimum_cut(G, s, t)
     det = [f"{u} → {v}: {f}/{G[u][v]['capacity']}" for u in flow for v, f in flow[u].items() if f > 0]
     det.append("Corte mínimo, lado fuente: " + ", ".join(sorted(map(str, cut_s))))
     img = to_png(G, lambda u, v, d: f"{flow[u][v]}/{d['capacity']}", lambda u, v: flow[u][v] > 0)
