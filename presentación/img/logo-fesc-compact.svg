@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 360" role="img" aria-label="FESC Educación Superior - Comfanorte">
+  <style>
+    .t { font-family: "Segoe UI", "Arial", Helvetica, sans-serif; }
+  </style>
+
+  <!-- FESC -->
+  <text class="t" x="22" y="198" font-size="170" font-weight="900" font-style="italic" fill="#3A3A3C">FES<tspan fill="#D8232A">C</tspan></text>
+
+  <!-- EDUCACIÓN SUPERIOR -->
+  <text class="t" x="28" y="258" font-size="36" font-weight="700" letter-spacing="4" fill="#3A3A3C">EDUCACIÓN <tspan dx="14">SUPERIOR</tspan></text>
+
+  <!-- swoosh rojo -->
+  <path d="M26 288 C 150 348, 335 350, 480 232 C 425 328, 255 350, 125 326 C 84 317, 48 304, 26 288 Z" fill="#D8232A"/>
+</svg>
