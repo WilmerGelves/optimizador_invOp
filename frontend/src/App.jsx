@@ -56,6 +56,20 @@ const METHODS = [
       { name: "supplies", label: "Oferta(+)/Demanda(−): nodo valor (el resto vale 0)", type: "textarea", hint: "Un nodo por línea · formato: nodo valor.", value: "A 8\nB 6\nC -5\nD -9" },
     ],
   },
+  {
+    id: "simplex", label: "Método simplex", endpoint: "/api/simplex",
+    theory: "El método simplex resuelve problemas de programación lineal: encontrar la mejor combinación de variables cuando el objetivo y las restricciones son expresiones lineales, por ejemplo producir el máximo con recursos limitados. En lugar de probar todas las combinaciones posibles, comienza en una esquina de la región factible y salta a esquinas vecinas mientras el valor de Z mejora, hasta alcanzar la solución óptima. Funciona con cualquier cantidad de variables y restricciones.",
+    guide: [
+      "Primera línea: los coeficientes de la función objetivo Z separados por espacios o comas; por ejemplo «5 4» significa Z = 5x₁ + 4x₂.",
+      "En las líneas siguientes escribe una restricción por línea con el formato «coeficientes signo lado derecho», por ejemplo «6 4 <= 24».",
+      "Los signos permitidos son <=, >= o =. Todas las filas deben tener la misma cantidad de variables que la función objetivo.",
+      "Elige si el objetivo es Maximizar o Minimizar. Se supone que las variables de decisión son mayores o iguales que cero.",
+    ],
+    fields: [
+      { name: "problem", label: "Problema (primera línea: Z · luego restricciones)", type: "textarea", hint: "Línea 1 = coeficientes de Z · después: coeficientes signo lado derecho por restricción.", value: "5 4\n6 4 <= 24\n1 2 <= 6" },
+      { name: "mode", label: "Objetivo", type: "select", hint: "Maximizar el beneficio o minimizar el costo.", options: ["Maximizar", "Minimizar"], value: "Maximizar" },
+    ],
+  },
 ];
 
 function NetMark() {
